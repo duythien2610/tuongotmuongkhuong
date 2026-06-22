@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import { supabase } from './lib/supabase';
 import { ToastProvider } from './components/Toast';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -31,6 +32,27 @@ function ScrollToTop() {
 }
 
 function App() {
+  useEffect(() => {
+    const syncDatabaseProducts = async () => {
+      try {
+        // Sync 250ml price to 30,000đ
+        await supabase
+          .from('products')
+          .update({ price: 30000, name: 'Tương ớt truyền thống 250ml', weight: '250ml' })
+          .eq('sku', 'MK-250');
+          
+        // Sync 500ml price to 55,000đ
+        await supabase
+          .from('products')
+          .update({ price: 55000, name: 'Tương ớt truyền thống 500ml', weight: '500ml' })
+          .eq('sku', 'MK-500G');
+      } catch (err) {
+        console.error('Error syncing database products:', err);
+      }
+    };
+    syncDatabaseProducts();
+  }, []);
+
   return (
     <ToastProvider>
       <AuthProvider>

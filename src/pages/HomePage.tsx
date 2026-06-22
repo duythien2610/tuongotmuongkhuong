@@ -10,7 +10,7 @@ import {
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-import { formatPrice, REVIEWS, COMBOS, calculateDiscount, COMPANY_INFO, BLOG_POSTS, BlogPost, ALL_PRODUCTS, IMG } from '../data/product';
+import { formatPrice, REVIEWS, calculateDiscount, COMPANY_INFO, BLOG_POSTS, BlogPost, ALL_PRODUCTS, IMG } from '../data/product';
 
 /* ─── Scroll-reveal hook ─── */
 function useInView(threshold = 0.15) {
@@ -261,9 +261,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 transition-all duration-700 delay-150 ${prodIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            {ALL_PRODUCTS.filter(p => ['sauce-250', 'sauce-garlic', 'combo-koc'].includes(p.id)).map((p, i) => {
-              const tilts = ['-rotate-[3deg]', 'rotate-[2deg]', '-rotate-[1.5deg]'];
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-7 max-w-4xl mx-auto transition-all duration-700 delay-150 ${prodIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            {ALL_PRODUCTS.filter(p => ['sauce-250', 'sauce-500'].includes(p.id)).map((p, i) => {
               const badgeClasses: Record<string, string> = {
                 bestseller: 'bg-[#9A1F1E] text-white',
                 new: 'bg-[#2D5A27] text-white',
@@ -272,7 +271,7 @@ export default function HomePage() {
               };
               const displayProduct = {
                 name: p.name,
-                category: p.id === 'combo-koc' ? 'Dành Cho Đại Lý' : p.id === 'sauce-garlic' ? 'Dòng Đặc Biệt' : 'Dòng Truyền Thống',
+                category: p.id === 'sauce-500' ? 'Chai lớn tiết kiệm' : 'Chai nhỏ tiện lợi',
                 price: p.price,
                 originalPrice: p.originalPrice,
                 image: p.image,
@@ -281,9 +280,8 @@ export default function HomePage() {
                 rating: p.rating,
                 reviews: p.reviews,
                 volume: p.weight || '250ml',
-                origin: p.id === 'combo-koc' ? 'Giao toàn quốc' : 'Mường Khương, Lào Cai',
+                origin: 'Mường Khương, Lào Cai',
                 highlight: p.id === 'sauce-250',
-                tilt: tilts[i % tilts.length],
                 desc: p.description,
               };
 
@@ -304,7 +302,7 @@ export default function HomePage() {
                     -{calculateDiscount(displayProduct.price, displayProduct.originalPrice)}%
                   </div>
 
-                  {/* Image wrap — aspect-square ratio with bg-gray-50 (Giai đoạn 2) */}
+                  {/* Image wrap — aspect-square ratio with bg-gray-50 */}
                   <div className="relative aspect-square bg-gray-50 overflow-hidden">
                     <img
                       src={displayProduct.image}
@@ -336,7 +334,7 @@ export default function HomePage() {
 
                     <p className="text-gray-400 text-xs leading-relaxed mb-3 line-clamp-2">{displayProduct.desc}</p>
 
-                    {/* Stars + review count (Always 5 stars ⭐⭐⭐⭐⭐) */}
+                    {/* Stars + review count */}
                     <div className="flex items-center gap-2 mb-4">
                       <div className="flex gap-0.5">
                         {Array.from({ length: 5 }).map((_, s) => (
@@ -374,7 +372,7 @@ export default function HomePage() {
             <Link to="/san-pham"
               className="inline-flex items-center gap-2 border-2 border-[rgba(154,31,30,0.2)] text-[#9A1F1E] font-heading font-bold px-8 py-3.5 rounded-xl hover:border-[#9A1F1E] hover:bg-[#9A1F1E] hover:text-white transition-all duration-300 active:scale-95 text-sm"
             >
-              Xem tất cả sản phẩm & Combo
+              Xem tất cả sản phẩm
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -599,61 +597,6 @@ export default function HomePage() {
               <Counter to={3} label="Tiêu chuẩn OCOP" suffix="★" />
               <Counter to={20} label="Năm kinh nghiệm" suffix="+" />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════
-          COMBO SECTION
-      ═══════════════════════════════════════════════════ */}
-      <section className="py-24 bg-[#FAF8F5]">
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <span className="inline-flex items-center gap-2 text-brand-red text-xs font-bold tracking-[0.2em] uppercase mb-3">
-              <span className="w-8 h-px bg-brand-red" />
-              Ưu đãi đặc biệt
-              <span className="w-8 h-px bg-brand-red" />
-            </span>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-brand-brown-dark mb-3">Combo Tiết Kiệm</h2>
-            <p className="text-gray-500 text-sm">Mua theo combo để nhận mức giá ưu đãi nhất cùng Freeship</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {COMBOS.map((combo, i) => (
-              <div key={i} className="group bg-white rounded-3xl overflow-hidden border border-gray-200/50 hover:border-brand-gold/30 shadow-sm hover:shadow-lg transition-all duration-400 hover:-translate-y-1">
-                <div className="relative overflow-hidden aspect-[4/3] bg-gray-50">
-                  <img src={combo.image} alt={combo.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  {combo.tag && (
-                    <span className="absolute top-3 left-3 badge-pill bg-brand-red text-white text-[10px] uppercase font-bold tracking-wider">{combo.tag}</span>
-                  )}
-                  <span className="absolute top-3 right-3 badge-pill bg-white text-brand-red text-[10px] font-bold shadow-sm">
-                    -{calculateDiscount(combo.price, combo.originalPrice)}%
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-bold text-brand-brown-dark text-sm mb-3 group-hover:text-brand-red transition-colors duration-300">{combo.name}</h3>
-                  <ul className="space-y-1.5 mb-5">
-                    {combo.items.map((item, j) => (
-                      <li key={j} className="flex items-center gap-2 text-xs text-gray-500">
-                        <CheckCircle2 size={12} className="text-brand-gold flex-shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div>
-                      <p className="text-brand-red font-sans font-bold text-base">{formatPrice(combo.price)}</p>
-                      <p className="text-gray-400 line-through text-[10px] font-sans">{formatPrice(combo.originalPrice)}</p>
-                    </div>
-                    <Link to="/san-pham"
-                      className="bg-brand-red hover:bg-brand-red-dark text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors"
-                    >
-                      Chọn mua
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

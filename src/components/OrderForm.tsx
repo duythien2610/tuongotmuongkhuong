@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, CheckCircle2, AlertCircle, Phone, MapPin, User, Package, MessageCircle, CreditCard, Truck, Copy, Check, ChevronLeft, ChevronRight, Award } from 'lucide-react';
 import { PRODUCT_VARIANTS, formatPrice, COMPANY_INFO } from '../data/product';
+import { supabase } from '../lib/supabase';
 
 interface FormData {
   name: string;
@@ -23,7 +24,7 @@ export default function OrderForm() {
   const [step, setStep] = useState(1); // Steps: 1 (Product), 2 (Info), 3 (Payment)
   const [showSuccess, setShowSuccess] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [orderId, setOrderId] = useState<number>(0);
+  const [orderId, setOrderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState<FormData>({
@@ -86,18 +87,96 @@ export default function OrderForm() {
     setStep(prev => Math.max(1, prev - 1));
   };
 
+  const generateOrderNo = () => {
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `DH-${dateStr}-${rand}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep2()) return;
 
     setIsSubmitting(true);
 
-    // Sinh mã đơn hàng ngẫu nhiên
-    const randomId = Math.floor(100000 + Math.random() * 900000);
-    setOrderId(randomId);
+    try {
+      // 1. Fetch products from database
+      const { data: dbProducts, error: prodError } = await supabase
+        .from('products')
+        .select('*');
 
-    // Mô phỏng đặt hàng
-    await new Promise(resolve => setTimeout(resolve, 1500));
+      if (prodError || !dbProducts) {
+        throw new Error(prodError?.message || 'Không thể lấy thông tin sản phẩm từ database');
+      }
+
+      // Match SKU: 1 (250ml) -> 'MK-250', 2 (500ml) -> 'MK-500G'
+      const targetSku = formData.product === 1 ? 'MK-250' : 'MK-500G';
+      const dbProduct = dbProducts.find(p => p.sku === targetSku);
+
+      if (!dbProduct) {
+        throw new Error(`Không tìm thấy sản phẩm với SKU ${targetSku} trong database`);
+      }
+
+      // 2. Generate order number and insert into sales_orders
+      const orderNumber = generateOrderNo();
+
+      const { data: orderData, error: orderError } = await supabase
+        .from('sales_orders')
+        .insert({
+          order_number: orderNumber,
+          customer_name: formData.name,
+          customer_phone: formData.phone,
+          customer_address: formData.address,
+          status: 'pending',
+          total_amount: totalPrice,
+          payment_method: formData.paymentMethod,
+          notes: formData.note || null,
+        })
+        .select()
+        .single();
+
+      if (orderError || !orderData) {
+        throw new Error(orderError?.message || 'Không thể tạo đơn hàng trên database');
+      }
+
+      // 3. Insert into sales_order_items
+      const { error: itemError } = await supabase
+        .from('sales_order_items')
+        .insert({
+          order_id: orderData.id,
+          product_id: dbProduct.id,
+          quantity: formData.quantity,
+          unit_price: selectedProduct.price,
+          total_price: totalPrice,
+        });
+
+      if (itemError) {
+        throw new Error(itemError.message || 'Không thể tạo chi tiết đơn hàng');
+      }
+
+      // 4. Update warehouse stock (inventory)
+      const { data: invItem } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('product_id', dbProduct.id)
+        .maybeSingle();
+
+      if (invItem) {
+        await supabase
+          .from('inventory')
+          .update({
+            quantity: Math.max(0, invItem.quantity - formData.quantity),
+          })
+          .eq('id', invItem.id);
+      }
+
+      setOrderId(orderNumber);
+    } catch (err: any) {
+      console.error('Lỗi đặt hàng:', err);
+      alert('Đã xảy ra lỗi khi đặt hàng: ' + err.message);
+      setIsSubmitting(false);
+      return;
+    }
 
     setIsSubmitting(false);
     setShowSuccess(true);
@@ -126,7 +205,7 @@ export default function OrderForm() {
   };
 
   // Tạo URL ảnh VietQR tự động tính tiền
-  const vietQrUrl = `https://img.vietqr.io/image/vietinbank-101870000000-compact.png?amount=${totalPrice}&addInfo=DH${orderId}&accountName=HTX%20HOA%20LOI`;
+  const vietQrUrl = `https://img.vietqr.io/image/vietinbank-101870000000-compact.png?amount=${totalPrice}&addInfo=${orderId}&accountName=HTX%20HOA%20LOI`;
 
   return (
     <>
@@ -198,7 +277,7 @@ export default function OrderForm() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-display font-extrabold text-2xl text-gray-800">Đặt hàng thành công!</h3>
-                  <p className="text-xs text-gray-500 font-sans">Mã đơn hàng của bạn: <strong className="text-brand-red font-bold">#{orderId}</strong></p>
+                  <p className="text-xs text-gray-500 font-sans">Mã đơn hàng của bạn: <strong className="text-brand-red font-bold">{orderId}</strong></p>
                 </div>
 
                 {/* Receipt summary */}
@@ -258,9 +337,9 @@ export default function OrderForm() {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400">Nội dung CK:</span>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-gray-800">DH{orderId}</span>
+                          <span className="font-bold text-gray-800">{orderId}</span>
                           <button
-                            onClick={() => copyToClipboard(`DH${orderId}`, 'content')}
+                            onClick={() => copyToClipboard(orderId, 'content')}
                             className="p-1 hover:bg-gray-100 rounded border border-gray-100 transition-colors"
                           >
                             {copied === 'content' ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-gray-400" />}

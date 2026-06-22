@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../components/Toast';
 import { formatPrice, COMPANY_INFO, BANK_INFO, SHIPPING_INFO } from '../data/product';
+import { supabase } from '../lib/supabase';
 
 interface FormData {
   name: string;
@@ -33,7 +34,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1); // 1: Review, 2: Info, 3: Payment
   const [showSuccess, setShowSuccess] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [orderId, setOrderId] = useState<number>(0);
+  const [orderId, setOrderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -94,6 +95,12 @@ export default function CheckoutPage() {
     setStep(prev => Math.max(1, prev - 1));
   };
 
+  const generateOrderNo = () => {
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `DH-${dateStr}-${rand}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep2()) return;
@@ -103,9 +110,91 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-    const randomId = Math.floor(100000 + Math.random() * 900000);
-    setOrderId(randomId);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+      // 1. Fetch products from database
+      const { data: dbProducts, error: prodError } = await supabase
+        .from('products')
+        .select('*');
+
+      if (prodError || !dbProducts) {
+        throw new Error(prodError?.message || 'Không thể lấy thông tin sản phẩm từ database');
+      }
+
+      // 2. Generate order number and insert into sales_orders
+      const orderNumber = generateOrderNo();
+      const { data: orderData, error: orderError } = await supabase
+        .from('sales_orders')
+        .insert({
+          order_number: orderNumber,
+          customer_name: formData.name,
+          customer_phone: formData.phone,
+          customer_address: formData.address,
+          status: 'pending',
+          total_amount: grandTotal,
+          payment_method: formData.paymentMethod,
+          notes: formData.note || null,
+        })
+        .select()
+        .single();
+
+      if (orderError || !orderData) {
+        throw new Error(orderError?.message || 'Không thể tạo đơn hàng trên database');
+      }
+
+      // 3. Prepare order items
+      const orderItems = items.map(item => {
+        // Map local ID to SKU
+        const targetSku = item.id === 'sauce-250' ? 'MK-250' : 'MK-500G';
+        const dbProd = dbProducts.find(p => p.sku === targetSku);
+        return {
+          order_id: orderData.id,
+          product_id: dbProd?.id || dbProducts[0]?.id, // fallback
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity,
+        };
+      });
+
+      // Insert into sales_order_items
+      const { error: itemsError } = await supabase
+        .from('sales_order_items')
+        .insert(orderItems);
+
+      if (itemsError) {
+        throw new Error(itemsError.message || 'Không thể tạo chi tiết đơn hàng');
+      }
+
+      // 4. Update warehouse stock for each item
+      for (const item of items) {
+        const targetSku = item.id === 'sauce-250' ? 'MK-250' : 'MK-500G';
+        const dbProd = dbProducts.find(p => p.sku === targetSku);
+        if (dbProd) {
+          const { data: invItem } = await supabase
+            .from('inventory')
+            .select('*')
+            .eq('product_id', dbProd.id)
+            .maybeSingle();
+
+          if (invItem) {
+            await supabase
+              .from('inventory')
+              .update({
+                quantity: Math.max(0, invItem.quantity - item.quantity),
+              })
+              .eq('id', invItem.id);
+          }
+        }
+      }
+
+      setOrderId(orderNumber);
+    } catch (err: any) {
+      console.error('Lỗi đặt hàng:', err);
+      showToast('Đã xảy ra lỗi khi đặt hàng: ' + err.message, 'error');
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(false);
     setShowSuccess(true);
     clearCart();
@@ -134,7 +223,7 @@ export default function CheckoutPage() {
     navigate('/');
   };
 
-  const vietQrUrl = `https://img.vietqr.io/image/${BANK_INFO.bankId}-${BANK_INFO.accountNo}-compact.png?amount=${grandTotal}&addInfo=DH${orderId}&accountName=${encodeURIComponent(BANK_INFO.accountName)}`;
+  const vietQrUrl = `https://img.vietqr.io/image/${BANK_INFO.bankId}-${BANK_INFO.accountNo}-compact.png?amount=${grandTotal}&addInfo=${orderId}&accountName=${encodeURIComponent(BANK_INFO.accountName)}`;
 
   if (items.length === 0 && !showSuccess) {
     return (
@@ -176,7 +265,7 @@ export default function CheckoutPage() {
             </h1>
             <p className="text-gray-500 text-sm mt-2">
               {showSuccess
-                ? `Mã đơn hàng của bạn: #${orderId}`
+                ? `Mã đơn hàng của bạn: ${orderId}`
                 : 'Hoàn tất đơn hàng của bạn trong 3 bước đơn giản'}
             </p>
           </div>
@@ -215,7 +304,7 @@ export default function CheckoutPage() {
                   <CheckCircle2 size={36} className="text-green-600" />
                 </div>
                 <h2 className="font-display font-extrabold text-2xl text-gray-800 mt-4">Đặt hàng thành công!</h2>
-                <p className="text-xs text-gray-500 mt-1">Mã đơn hàng: <strong className="text-brand-red font-bold">#{orderId}</strong></p>
+                <p className="text-xs text-gray-500 mt-1">Mã đơn hàng: <strong className="text-brand-red font-bold">{orderId}</strong></p>
               </div>
 
               {/* Receipt */}
@@ -270,8 +359,8 @@ export default function CheckoutPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400">Nội dung CK:</span>
                       <div className="flex items-center gap-1">
-                        <span className="font-bold">DH{orderId}</span>
-                        <button onClick={() => copyToClipboard(`DH${orderId}`, 'ref')} className="p-1 hover:bg-gray-100 rounded border border-gray-100">
+                        <span className="font-bold">{orderId}</span>
+                        <button onClick={() => copyToClipboard(orderId, 'ref')} className="p-1 hover:bg-gray-100 rounded border border-gray-100">
                           {copied === 'ref' ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-gray-400" />}
                         </button>
                       </div>

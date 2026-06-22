@@ -19,9 +19,6 @@ export { ALL_PRODUCTS };
 const CATEGORIES = [
   { id: 'all', name: 'Tất cả' },
   { id: 'tuong-ot', name: 'Tương ớt' },
-  { id: 'hop-qua', name: 'Hộp quà' },
-  { id: 'combo', name: 'Combo' },
-  { id: 'dac-san-ocop', name: 'Đặc sản OCOP' },
 ];
 
 const ITEMS_PER_PAGE = 8;
@@ -333,7 +330,7 @@ export default function ProductPage() {
                             <span className="text-[11px] text-gray-400">({product.sold} đã bán)</span>
                           </div>
                           <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium border border-amber-200/50">
-                            Còn {product.stock} {product.category === 'hop-qua' ? 'hộp' : product.category === 'combo' ? 'combo' : 'hũ'}
+                            Còn {product.stock} chai
                           </span>
                         </div>
 
