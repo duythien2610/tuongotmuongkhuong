@@ -99,7 +99,7 @@ export default function TrustyBotBubble() {
   return (
     <>
       {/* Fixed wrapper at bottom-right */}
-      <div className="fixed bottom-6 right-4 md:right-6 z-40 flex flex-col items-end">
+      <div className="fixed bottom-6 right-4 md:right-6 z-[60] flex flex-col items-end">
 
         {/* ── CHAT WINDOW ── */}
         {isOpen && (
@@ -107,7 +107,7 @@ export default function TrustyBotBubble() {
             className={[
               // Desktop sizing
               'mb-3 w-[calc(100vw-32px)] sm:w-[390px] md:w-[410px]',
-              'h-[520px] sm:h-[560px] md:h-[600px] max-h-[calc(100vh-110px)]',
+              'h-[480px] sm:h-[520px] md:h-[560px] max-h-[calc(100vh-180px)] lg:max-h-[calc(100vh-170px)]',
               // Mobile: full screen overlay
               'max-sm:fixed max-sm:inset-0 max-sm:w-full max-sm:h-full max-sm:max-h-full max-sm:mb-0',
               // Visuals
