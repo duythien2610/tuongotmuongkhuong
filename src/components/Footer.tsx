@@ -98,7 +98,14 @@ export default function Footer() {
             <ul className="space-y-4 font-sans">
               <li className="flex items-start gap-3 text-sm text-white/70 group">
                 <MapPin size={16} className="flex-shrink-0 mt-0.5 text-brand-gold-light group-hover:scale-110 transition-transform" />
-                <span className="group-hover:text-white transition-colors">{COMPANY_INFO.address}</span>
+                <a
+                  href={COMPANY_INFO.mapLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group-hover:text-white transition-colors hover:underline"
+                >
+                  {COMPANY_INFO.address}
+                </a>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone size={16} className="flex-shrink-0 text-brand-gold-light" />
@@ -183,12 +190,15 @@ export default function Footer() {
                 </button>
               </div>
             </div>
-            <div className="aspect-video rounded-2xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/10">
-              <div className="text-center">
-                <MapPin size={28} className="mx-auto mb-2 text-brand-gold-light opacity-60" />
-                <p className="text-xs text-white/40">Mường Khương, Lào Cai</p>
-              </div>
-            </div>
+            <a
+              href={COMPANY_INFO.mapLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="aspect-video rounded-2xl overflow-hidden bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center border border-white/10 transition-all hover:scale-[1.02] group"
+            >
+              <MapPin size={28} className="mx-auto mb-2 text-brand-gold-light opacity-60 group-hover:opacity-100 transition-opacity" />
+              <p className="text-xs text-white/40 group-hover:text-white/80 transition-colors">Xem vị trí trên bản đồ</p>
+            </a>
           </div>
         </div>
       </div>

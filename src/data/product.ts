@@ -7,10 +7,11 @@ export const COMPANY_INFO = {
   hotline: '0912 518 745',
   hotlineLink: 'tel:0912518745',
   email: 'hoaloimk@gmail.com',
-  address: 'Tổ dân phố Cánh Chín, phường Lào Cai, thành phố Lào Cai, tỉnh Lào Cai, Việt Nam',
+  address: 'Thôn Cánh Chín, xã Vạn Hòa, thành phố Lào Cai, tỉnh Lào Cai',
   ocop: 'OCOP 3 Sao',
   zaloLink: 'https://zalo.me/0912518745',
   facebookLink: 'https://facebook.com/hoaloimk',
+  mapLink: 'https://www.google.com/maps/search/?api=1&query=Thôn+Cánh+Chín,+xã+Vạn+Hòa,+thành+phố+Lào+Cai,+tỉnh+Lào+Cai',
 };
 
 // ============================================
@@ -524,10 +525,10 @@ export const DISTRIBUTION_STORES: StoreLocation[] = [
     id: 1,
     name: 'Trụ sở chính & Showroom HTX Hoa Lợi',
     province: 'Lào Cai',
-    district: 'Phường Lào Cai',
-    address: 'Tổ dân phố Cánh Chín, phường Lào Cai, thành phố Lào Cai, tỉnh Lào Cai',
+    district: 'Xã Vạn Hòa',
+    address: 'Thôn Cánh Chín, xã Vạn Hòa, thành phố Lào Cai, tỉnh Lào Cai',
     phone: '0912 518 745',
-    mapLink: 'https://maps.google.com/?q=HTX+Hoa+Lợi+Lào+Cai',
+    mapLink: 'https://www.google.com/maps/search/?api=1&query=Thôn+Cánh+Chín,+xã+Vạn+Hòa,+thành+phố+Lào+Cai,+tỉnh+Lào+Cai',
   },
 ];
 
