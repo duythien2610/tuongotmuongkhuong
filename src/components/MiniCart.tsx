@@ -31,8 +31,8 @@ export default function MiniCart({ isScrolled }: { isScrolled?: boolean }) {
         aria-label="Giỏ hàng"
       >
         <ShoppingCart size={22} />
-        <span className={`absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform ${
-          totalItems > 0 ? 'bg-red-600' : 'bg-gray-400'
+        <span className={`absolute -top-1 -right-1 w-5 h-5 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-md group-hover:scale-110 transition-transform ${
+          totalItems > 0 ? 'bg-brand-red-dark' : 'bg-gray-500'
         }`}>
           {totalItems}
         </span>
