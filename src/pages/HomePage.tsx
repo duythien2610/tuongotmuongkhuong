@@ -275,7 +275,7 @@ export default function HomePage() {
                 price: p.price,
                 originalPrice: p.originalPrice,
                 image: p.image,
-                badge: p.badge || 'Hot',
+                badge: p.badge,
                 badgeClass: badgeClasses[p.badgeVariant || ''] || 'bg-[#9A1F1E] text-white',
                 rating: p.rating,
                 reviews: p.reviews,
@@ -293,11 +293,13 @@ export default function HomePage() {
                   } relative`}
                 >
                   {/* Badge */}
-                  <div className="absolute top-3 left-3 z-20">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full font-heading text-[9px] font-bold tracking-[0.05em] uppercase shadow-sm ${displayProduct.badgeClass}`}>
-                      {displayProduct.badge}
-                    </span>
-                  </div>
+                  {displayProduct.badge && (
+                    <div className="absolute top-3 left-3 z-20">
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full font-heading text-[9px] font-bold tracking-[0.05em] uppercase shadow-sm ${displayProduct.badgeClass}`}>
+                        {displayProduct.badge}
+                      </span>
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3 z-20 bg-white text-[#9A1F1E] font-heading font-extrabold text-[10px] px-2 py-0.5 rounded-lg shadow-sm border border-[rgba(154,31,30,0.15)]">
                     -{calculateDiscount(displayProduct.price, displayProduct.originalPrice)}%
                   </div>

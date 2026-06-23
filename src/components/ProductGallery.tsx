@@ -72,10 +72,6 @@ export default function ProductGallery() {
               <Star size={12} className="fill-brand-brown-dark" />
               Best Seller
             </div>
-            <div className="bg-white/95 backdrop-blur-sm text-brand-red px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-              <Award size={12} />
-              OCOP 3★
-            </div>
           </div>
 
           {/* Quality badge top right */}
