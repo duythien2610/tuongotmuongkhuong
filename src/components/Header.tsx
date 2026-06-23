@@ -154,13 +154,6 @@ export default function Header() {
                 Sản phẩm
               </Link>
 
-              <Link
-                to="/tu-van-ai"
-                className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${navTextClass(isActive('/tu-van-ai'))}`}
-              >
-                Trợ lý AI
-              </Link>
-
               {/* Khám phá Dropdown */}
               <div
                 className="relative"
@@ -429,13 +422,6 @@ export default function Header() {
               >
                 Sản phẩm
               </Link>
-              <Link
-                to="/tu-van-ai"
-                className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-brand-red hover:bg-brand-red/5 rounded-xl transition-all"
-              >
-                Trợ lý AI
-              </Link>
-
               {/* Khám phá Accordion */}
               <div>
                 <button

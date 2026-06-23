@@ -450,7 +450,7 @@ export default function HomePage() {
 
             {/* CTA button */}
             <Link
-              to="/cau-chuyen"
+              to="/san-pham"
               className="group inline-flex items-center gap-2 bg-gradient-to-r from-[#9A1F1E] to-[#801615] hover:from-[#801615] hover:to-[#6B1212] text-white font-heading font-semibold px-7 py-4 rounded-xl transition-all duration-300 shadow-xl shadow-[rgba(154,31,30,0.4)] hover:shadow-2xl hover:-translate-y-0.5 text-sm"
             >
               Ủng Hộ Sản Phẩm Địa Phương
