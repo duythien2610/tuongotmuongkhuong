@@ -16,6 +16,7 @@ import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import StoreLocatorPage from './pages/StoreLocatorPage';
 import AIConsultantPage from './pages/AIConsultantPage';
+import TuongOtMuongKhuongPage from './pages/TuongOtMuongKhuongPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import SalesPage from './pages/admin/SalesPage';
@@ -70,6 +71,8 @@ function App() {
               <Route path="/tin-tuc/:slug" element={<BlogDetailPage />} />
               <Route path="/he-thong-phan-phoi" element={<StoreLocatorPage />} />
               <Route path="/tu-van-ai" element={<AIConsultantPage />} />
+              <Route path="/tuong-ot-muong-khuong" element={<TuongOtMuongKhuongPage />} />
+              <Route path="/tuong-t-mng-khng" element={<TuongOtMuongKhuongPage />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="ban-hang" element={<SalesPage />} />
